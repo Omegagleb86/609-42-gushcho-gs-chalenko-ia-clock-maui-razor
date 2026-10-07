@@ -1,0 +1,7 @@
+@inject ClockService Service
+<h1 class="mb-6 text-2xl font-semibold">Clock</h1>
+<div class="text-5xl font-mono tabular-nums">@Service.Now.ToString("HH:mm:ss")</div>
+<p class="mt-4 text-slate-600">@Service.Now.ToString("d MMMM yyyy")</p>
+@code {
+    [CascadingParameter] public long Revision { get; set; }
+}

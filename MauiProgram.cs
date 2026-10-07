@@ -15,6 +15,10 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddScoped<Services.ClockService>();
+        builder.Services.AddScoped<Services.AlarmService>();
+        builder.Services.AddScoped<Services.TimerService>();
+        builder.Services.AddScoped<Services.StopwatchService>();
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();

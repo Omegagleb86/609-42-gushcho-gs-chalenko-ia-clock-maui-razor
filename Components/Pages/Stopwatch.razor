@@ -1,0 +1,14 @@
+@page "/stopwatch"
+@inject StopwatchService Service
+<h1 class="mb-6 text-2xl font-semibold">Stopwatch</h1>
+<div class="mb-6 text-5xl font-mono tabular-nums">@TimeDisplay.Format(Service.Elapsed)</div>
+<div class="flex flex-wrap gap-2">
+    <button class="rounded bg-blue-700 px-4 py-2 text-white disabled:opacity-50" disabled="@(Service.State != RunState.Stopped)" @onclick="Service.Start">Start</button>
+    <button class="rounded border border-slate-300 px-4 py-2 disabled:opacity-50" disabled="@(Service.State is not (RunState.Running or RunState.Paused))" @onclick="TogglePause">@(Service.State == RunState.Paused ? "Resume" : "Pause")</button>
+    <button class="rounded border border-slate-300 px-4 py-2" @onclick="Service.Reset">Reset</button>
+</div>
+<p role="status" class="mt-4">Status: @Service.State</p>
+@code {
+    [CascadingParameter] public long Revision { get; set; }
+    private void TogglePause() { if (Service.State == RunState.Paused) Service.Resume(); else Service.Pause(); }
+}

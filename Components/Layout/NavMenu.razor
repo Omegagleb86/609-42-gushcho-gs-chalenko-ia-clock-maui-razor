@@ -1,27 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">clock</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<nav aria-label="Time tools" class="flex flex-col gap-2">
+    <NavLink href="" Match="NavLinkMatch.All" class="rounded p-3 hover:bg-slate-100 [&.active]:bg-blue-100 [&.active]:text-blue-800">Clock</NavLink>
+    <NavLink href="alarm" class="rounded p-3 hover:bg-slate-100 [&.active]:bg-blue-100 [&.active]:text-blue-800">Alarm</NavLink>
+    <NavLink href="timer" class="rounded p-3 hover:bg-slate-100 [&.active]:bg-blue-100 [&.active]:text-blue-800">Timer</NavLink>
+    <NavLink href="stopwatch" class="rounded p-3 hover:bg-slate-100 [&.active]:bg-blue-100 [&.active]:text-blue-800">Stopwatch</NavLink>
+</nav>
