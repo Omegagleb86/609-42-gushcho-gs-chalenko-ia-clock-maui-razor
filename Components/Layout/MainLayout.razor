@@ -7,38 +7,36 @@
 @inject AlertAudioService Audio
 @inject TimeStateStore Store
 
-<div class="flex min-h-screen bg-slate-50 text-slate-900">
-    <aside class="w-36 shrink-0 border-r border-slate-200 bg-white p-4"><NavMenu /></aside>
-    <main class="min-w-0 flex-1 p-6">
-        <div class="mb-4 flex flex-wrap items-center gap-3">
-            <button class="rounded border border-slate-300 px-4 py-2 disabled:opacity-50" disabled="@(!Audio.Ready || Audio.Changing)" aria-pressed="@(Audio.Enabled ? "true" : "false")" @onclick="Audio.ToggleAsync">@(Audio.Enabled ? "Disable sounds" : "Enable sounds")</button>
-            <span class="text-sm text-slate-600">@(Audio.Enabled ? "Alert sounds enabled" : "Alert sounds disabled")</span>
+<div class="flex min-h-screen bg-ink font-sans text-white">
+    <aside class="sticky top-0 flex h-screen w-24 shrink-0 flex-col bg-rail px-2 sm:w-44 sm:px-4">
+        <div class="flex h-32 shrink-0 justify-center pt-8">
+            <button class="@(Audio.Enabled ? "bg-pink-500 hover:bg-pink-400" : "bg-violet-500 hover:bg-violet-400") flex h-12 w-12 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:opacity-40" disabled="@(!Audio.Ready || Audio.Changing)" aria-pressed="@(Audio.Enabled ? "true" : "false")" aria-label="@(Audio.Enabled ? "Выключить звук" : "Включить звук")" title="@(Audio.Enabled ? "Выключить звук" : "Включить звук")" @onclick="Audio.ToggleAsync">
+                <img src="@(Audio.Enabled ? "icons/with_sound.svg" : "icons/without_sound.svg")" alt="" class="h-5 w-6 object-contain" />
+            </button>
         </div>
-        @if (Store.Error is not null) { <p role="alert" class="mb-4 text-red-700">@Store.Error</p> }
-        @if (Audio.Error is not null) { <p role="alert" class="mb-4 text-red-700">@Audio.Error</p> }
-        @foreach (var alarm in Alarm.Items.Where(item => item.State == AlarmState.Triggered))
-        {
-            <div @key="alarm.Id" role="alert" class="mb-4 rounded bg-amber-100 p-4">
-                Alarm @alarm.Number: @alarm.ScheduledAt.ToString("HH:mm") — your alarm has triggered.
-                <button class="ml-4 underline" @onclick="alarm.Dismiss">Dismiss</button>
-            </div>
-        }
-        @foreach (var timer in Timer.Items.Where(item => item.State == RunState.Finished))
-        {
-            <div @key="timer.Id" role="alert" class="mb-4 rounded bg-amber-100 p-4">
-                Timer @timer.Number finished.
-                <button class="ml-4 underline" @onclick="timer.Reset">Dismiss</button>
-            </div>
-        }
-        @* The changing cascade refreshes the active page without per-page loops. *@
-        @if (loaded)
-        {
-            <CascadingValue Value="revision">@Body</CascadingValue>
-        }
-        else
-        {
-            <p role="status">Restoring saved alarms and timers…</p>
-        }
+        <NavMenu />
+    </aside>
+    <main class="flex min-h-screen min-w-0 flex-1 items-center justify-center px-4 py-10 sm:px-8">
+        <div class="w-full max-w-3xl">
+            @if (Store.Error is not null) { <p role="alert" class="mb-6 rounded-2xl bg-rose-500/10 p-4 text-sm text-rose-300">@Store.Error</p> }
+            @if (Audio.Error is not null) { <p role="alert" class="mb-6 rounded-2xl bg-rose-500/10 p-4 text-sm text-rose-300">@Audio.Error</p> }
+            @foreach (var alarm in Alarm.Items.Where(item => item.State == AlarmState.Triggered))
+            {
+                <div @key="alarm.Id" role="alert" class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-violet-500/15 p-4 text-sm">
+                    <span>Будильник на @alarm.ScheduledAt.ToString("HH:mm") сработал</span>
+                    <button class="action-button" @onclick="alarm.Dismiss">Остановить</button>
+                </div>
+            }
+            @foreach (var timer in Timer.Items.Where(item => item.State == RunState.Finished))
+            {
+                <div @key="timer.Id" role="alert" class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-pink-500/15 p-4 text-sm">
+                    <span>Таймер на @TimeDisplay.Format(timer.Duration) завершён</span>
+                    <button class="action-button" @onclick="timer.Reset">Закрыть</button>
+                </div>
+            }
+            @if (loaded) { <CascadingValue Value="revision">@Body</CascadingValue> }
+            else { <p role="status" class="text-center text-sm text-muted">Восстанавливаем будильники и таймеры…</p> }
+        </div>
     </main>
 </div>
 

@@ -1,0 +1,43 @@
+<article class="rounded-3xl border border-white/5 bg-panel p-5 sm:p-6">
+    <button type="button" class="flex w-full items-center justify-between gap-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-violet-400" aria-expanded="@(editing ? "true" : "false")" aria-label="@($"Изменить будильник на {Alarm.Time:HH:mm}")" @onclick="Toggle">
+        <span class="text-4xl font-bold tabular-nums">@Alarm.Time.ToString("HH:mm")</span>
+        <span class="text-right text-xs text-muted">@StateLabels.Alarm(Alarm.State)<br /><span class="mt-1 inline-block">@(editing ? "Закрыть ↑" : "Изменить ↓")</span></span>
+    </button>
+    <div class="mt-4"><WeekdayPicker Days="Alarm.Days" ReadOnly="true" /></div>
+    @if (editing)
+    {
+        <div class="mt-5 border-t border-white/5 pt-5">
+            <label class="block text-center text-xs text-muted">Время будильника
+                <input type="time" class="text-field mx-auto mt-2 block max-w-full text-center text-xl" value="@editTime" @onchange="e => editTime = e.Value?.ToString() ?? string.Empty" />
+            </label>
+            <div class="mt-5"><WeekdayPicker @bind-Days="editDays" /></div>
+            @if (error is not null) { <p role="alert" class="mt-3 text-center text-sm text-rose-300">@error</p> }
+            <div class="mt-5 flex flex-wrap justify-center gap-2">
+                <button class="primary-button" @onclick="Save">Сохранить</button>
+                @if (Alarm.State == AlarmState.Triggered) { <button class="action-button" @onclick="Alarm.Dismiss">Остановить сигнал</button> }
+                @if (Alarm.State == AlarmState.Disabled) { <button class="action-button" @onclick="Alarm.Enable">Включить</button> }
+                else { <button class="action-button" @onclick="Alarm.Disable">Выключить</button> }
+                <button class="action-button text-rose-300" @onclick="() => OnRemove.InvokeAsync(Alarm.Id)">Удалить</button>
+            </div>
+        </div>
+    }
+</article>
+@code {
+    [Parameter, EditorRequired] public AlarmEntry Alarm { get; set; } = default!;
+    [Parameter] public EventCallback<Guid> OnRemove { get; set; }
+    private bool editing;
+    private string editTime = "";
+    private AlarmDays editDays;
+    private string? error;
+    private void Toggle()
+    {
+        editing = !editing; error = null;
+        if (editing) { editTime = Alarm.Time.ToString("HH:mm"); editDays = Alarm.Days; }
+    }
+    private void Save()
+    {
+        if (!TimeOnly.TryParse(editTime, out var time)) { error = "Выберите корректное время."; return; }
+        Alarm.UpdateSchedule(time, editDays);
+        editing = false; error = null;
+    }
+}

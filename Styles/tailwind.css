@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .action-button {
+        @apply rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-violet-400 disabled:cursor-not-allowed disabled:opacity-30;
+    }
+    .primary-button {
+        @apply rounded-full bg-violet-500 px-6 py-3 text-sm font-semibold text-white outline-none hover:bg-violet-400 focus-visible:ring-2 focus-visible:ring-violet-300;
+    }
+    .text-field {
+        @apply rounded-2xl border border-white/10 bg-ink px-3 py-3 text-white outline-none focus:border-violet-400;
+    }
+}

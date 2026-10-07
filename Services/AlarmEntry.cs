@@ -27,6 +27,15 @@ public sealed class AlarmEntry
     }
     public AlarmSnapshot Snapshot() => new(Id, Number, Time, State, new DateTimeOffset(ScheduledAt).ToUniversalTime(), Days);
 
+    public TimeSpan TimeUntil => ScheduledAt > DateTime.Now ? ScheduledAt - DateTime.Now : TimeSpan.Zero;
+    public void UpdateSchedule(TimeOnly time, AlarmDays days)
+    {
+        if (!AlarmSchedule.IsValid(days)) throw new ArgumentOutOfRangeException(nameof(days));
+        Time = time; Days = days;
+        ScheduledAt = AlarmSchedule.Next(time, days, DateTime.Now);
+        if (State != AlarmState.Disabled) State = AlarmState.Active;
+        Changed?.Invoke();
+    }
     public void Set(TimeOnly time)
     {
         Time = time;

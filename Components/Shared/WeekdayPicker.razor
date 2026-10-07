@@ -1,18 +1,22 @@
-<fieldset class="flex flex-wrap gap-3">
-    <legend class="text-base">Repeat on</legend>
+<div role="group" aria-label="Дни недели" class="flex flex-wrap justify-center gap-2">
     @foreach (var choice in AlarmSchedule.Choices)
     {
-        <label class="flex items-center gap-2">
-            <input type="checkbox" checked="@((Days & choice.Day) != 0)" @onchange="e => ToggleAsync(choice.Day, e)" />
-            @choice.Label
-        </label>
+        var selected = (Days & choice.Day) != 0;
+        var name = StateLabels.Day(choice.Day);
+        if (ReadOnly)
+        {
+            <span title="@name" aria-label="@(name + (selected ? ": выбран" : ": не выбран"))" class="@(selected ? "bg-blue-500 text-white" : "bg-blue-500/10 text-blue-300/50") flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold">@name[..1]</span>
+        }
+        else
+        {
+            <button type="button" title="@name" aria-label="@name" aria-pressed="@(selected ? "true" : "false")" class="@(selected ? "bg-blue-500 text-white" : "bg-blue-500/10 text-blue-300") flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold outline-none hover:bg-blue-500/70 focus-visible:ring-2 focus-visible:ring-blue-300" @onclick="() => DaysChanged.InvokeAsync(Days ^ choice.Day)">@name[..1]</button>
+        }
     }
-</fieldset>
-<p class="text-sm text-slate-600">@(Days == AlarmDays.None ? "No days selected: one-time alarm." : $"Weekly: {AlarmSchedule.Describe(Days)}")</p>
-
+</div>
+@if (ShowDescription) { <p class="mt-3 text-center text-xs text-muted">@StateLabels.Days(Days)</p> }
 @code {
     [Parameter] public AlarmDays Days { get; set; }
     [Parameter] public EventCallback<AlarmDays> DaysChanged { get; set; }
-    private Task ToggleAsync(AlarmDays day, ChangeEventArgs e) =>
-        DaysChanged.InvokeAsync(e.Value is true ? Days | day : Days & ~day);
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public bool ShowDescription { get; set; } = true;
 }

@@ -9,6 +9,7 @@ public sealed class AlarmService
     public event Action? Changed;
     private void OnChanged() => Changed?.Invoke();
     public IReadOnlyList<AlarmEntry> Items { get; }
+    public AlarmEntry? NextAlarm => items.Where(item => item.State == AlarmState.Active).OrderBy(item => item.ScheduledAt).FirstOrDefault();
     public AlarmService() => Items = items.AsReadOnly();
 
     public AlarmEntry Add(TimeOnly time, AlarmDays days = AlarmDays.None)
