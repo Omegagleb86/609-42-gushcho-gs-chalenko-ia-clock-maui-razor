@@ -4,39 +4,50 @@ public enum RunState { Stopped, Running, Paused, Finished }
 
 public sealed class TimerService
 {
-    private readonly System.Diagnostics.Stopwatch elapsed = new();
-    public RunState State { get; private set; }
-    public TimeSpan Duration { get; private set; }
-    public TimeSpan Remaining => TimeSpan.FromTicks(Math.Max(0, (Duration - elapsed.Elapsed).Ticks));
-    public void Start(TimeSpan duration)
+    private readonly List<TimerEntry> items = [];
+    private int nextNumber;
+    public event Action? Changed;
+    private void OnChanged() => Changed?.Invoke();
+    public IReadOnlyList<TimerEntry> Items { get; }
+    public TimerService() => Items = items.AsReadOnly();
+
+    public TimerEntry Add(TimeSpan duration)
     {
-        if (State is RunState.Running or RunState.Paused || duration <= TimeSpan.Zero) return;
-        Duration = duration;
-        elapsed.Restart();
-        State = RunState.Running;
+        var timer = new TimerEntry(nextNumber + 1, duration);
+        nextNumber++;
+        items.Add(timer);
+        timer.Changed += OnChanged;
+        OnChanged();
+        return timer;
     }
-    public void Pause()
+    public void Remove(Guid id)
     {
-        Refresh();
-        if (State != RunState.Running) return;
-        elapsed.Stop();
-        State = RunState.Paused;
+        var timer = items.Find(item => item.Id == id);
+        if (timer is null) return;
+        timer.Changed -= OnChanged;
+        timer.Reset();
+        items.Remove(timer);
+        OnChanged();
     }
-    public void Resume()
+    public void Restore(IEnumerable<TimerSnapshot> saved)
     {
-        if (State != RunState.Paused) return;
-        elapsed.Start();
-        State = RunState.Running;
-    }
-    public void Reset()
-    {
-        elapsed.Reset();
-        State = RunState.Stopped;
+        Clear();
+        foreach (var snapshot in saved)
+        {
+            var timer = new TimerEntry(snapshot);
+            timer.Changed += OnChanged;
+            items.Add(timer);
+        }
+        nextNumber = items.Count == 0 ? 0 : items.Max(item => item.Number);
     }
     public void Refresh()
     {
-        if (State != RunState.Running || Remaining > TimeSpan.Zero) return;
-        elapsed.Stop();
-        State = RunState.Finished;
+        foreach (var timer in items) timer.Refresh();
+    }
+    public void Clear()
+    {
+        foreach (var timer in items) { timer.Changed -= OnChanged; timer.Reset(); }
+        items.Clear();
+        OnChanged();
     }
 }

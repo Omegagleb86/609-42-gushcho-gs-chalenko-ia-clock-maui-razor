@@ -8,4 +8,9 @@ public static class TimeDisplay
         seconds = Math.Max(0, seconds);
         return $"{seconds / 3600:00}:{seconds / 60 % 60:00}:{seconds % 60:00}";
     }
+    public static string FormatPrecise(TimeSpan value)
+    {
+        if (value < TimeSpan.Zero) value = TimeSpan.Zero;
+        return $"{Format(value)}.{value.Milliseconds:000}";
+    }
 }

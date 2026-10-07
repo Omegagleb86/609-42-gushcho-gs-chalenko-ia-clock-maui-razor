@@ -4,36 +4,69 @@
 @inject AlarmService Alarm
 @inject TimerService Timer
 @inject StopwatchService Stopwatch
+@inject AlertAudioService Audio
+@inject TimeStateStore Store
 
 <div class="flex min-h-screen bg-slate-50 text-slate-900">
     <aside class="w-36 shrink-0 border-r border-slate-200 bg-white p-4"><NavMenu /></aside>
     <main class="min-w-0 flex-1 p-6">
-        @if (Alarm.State == AlarmState.Triggered)
+        <div class="mb-4 flex flex-wrap items-center gap-3">
+            <button class="rounded border border-slate-300 px-4 py-2 disabled:opacity-50" disabled="@(!Audio.Ready || Audio.Changing)" aria-pressed="@(Audio.Enabled ? "true" : "false")" @onclick="Audio.ToggleAsync">@(Audio.Enabled ? "Disable sounds" : "Enable sounds")</button>
+            <span class="text-sm text-slate-600">@(Audio.Enabled ? "Alert sounds enabled" : "Alert sounds disabled")</span>
+        </div>
+        @if (Store.Error is not null) { <p role="alert" class="mb-4 text-red-700">@Store.Error</p> }
+        @if (Audio.Error is not null) { <p role="alert" class="mb-4 text-red-700">@Audio.Error</p> }
+        @foreach (var alarm in Alarm.Items.Where(item => item.State == AlarmState.Triggered))
         {
-            <div role="alert" class="mb-4 rounded bg-amber-100 p-4">
-                Alarm: @Alarm.ScheduledAt?.ToString("HH:mm") — your alarm has triggered.
-                <button class="ml-4 underline" @onclick="Alarm.Disable">Dismiss</button>
+            <div @key="alarm.Id" role="alert" class="mb-4 rounded bg-amber-100 p-4">
+                Alarm @alarm.Number: @alarm.ScheduledAt.ToString("HH:mm") — your alarm has triggered.
+                <button class="ml-4 underline" @onclick="alarm.Dismiss">Dismiss</button>
             </div>
         }
-        @if (Timer.State == RunState.Finished)
+        @foreach (var timer in Timer.Items.Where(item => item.State == RunState.Finished))
         {
-            <div role="alert" class="mb-4 rounded bg-amber-100 p-4">
-                Timer finished.
-                <button class="ml-4 underline" @onclick="Timer.Reset">Dismiss</button>
+            <div @key="timer.Id" role="alert" class="mb-4 rounded bg-amber-100 p-4">
+                Timer @timer.Number finished.
+                <button class="ml-4 underline" @onclick="timer.Reset">Dismiss</button>
             </div>
         }
         @* The changing cascade refreshes the active page without per-page loops. *@
-        <CascadingValue Value="revision">@Body</CascadingValue>
+        @if (loaded)
+        {
+            <CascadingValue Value="revision">@Body</CascadingValue>
+        }
+        else
+        {
+            <p role="status">Restoring saved alarms and timers…</p>
+        }
     </main>
 </div>
 
 @code {
     private readonly CancellationTokenSource cancellation = new();
     private Task? refreshTask;
+    private Task? loadTask;
+    private bool loaded;
     private long revision;
     private bool disposed;
 
-    protected override void OnInitialized() => refreshTask = RefreshAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        loadTask = Store.InitializeAsync();
+        await loadTask;
+        if (!disposed)
+        {
+            loaded = true;
+            refreshTask = RefreshAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Audio.InitializeAsync();
+        if (!disposed) StateHasChanged();
+    }
 
     private async Task RefreshAsync()
     {
@@ -42,12 +75,14 @@
         {
             while (await ticker.WaitForNextTickAsync(cancellation.Token))
             {
-                await InvokeAsync(() =>
+                await InvokeAsync(async () =>
                 {
                     if (disposed) return;
                     Clock.Refresh();
                     Alarm.Refresh();
                     Timer.Refresh();
+                    await Audio.SyncAsync(Alarm.Items, Timer.Items);
+                    if (disposed) return;
                     revision++;
                     StateHasChanged();
                 });
@@ -61,9 +96,13 @@
         disposed = true;
         cancellation.Cancel();
         if (refreshTask is not null) await refreshTask;
-        Timer.Reset();
+        if (loadTask is not null) await loadTask;
+        await Store.FlushAsync();
+        Store.StopObserving();
+        Timer.Clear();
         Stopwatch.Reset();
-        Alarm.Disable();
+        Alarm.Clear();
+        await Audio.DisposeAsync();
         cancellation.Dispose();
     }
 }

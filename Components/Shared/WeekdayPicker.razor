@@ -1,0 +1,18 @@
+<fieldset class="flex flex-wrap gap-3">
+    <legend class="text-base">Repeat on</legend>
+    @foreach (var choice in AlarmSchedule.Choices)
+    {
+        <label class="flex items-center gap-2">
+            <input type="checkbox" checked="@((Days & choice.Day) != 0)" @onchange="e => ToggleAsync(choice.Day, e)" />
+            @choice.Label
+        </label>
+    }
+</fieldset>
+<p class="text-sm text-slate-600">@(Days == AlarmDays.None ? "No days selected: one-time alarm." : $"Weekly: {AlarmSchedule.Describe(Days)}")</p>
+
+@code {
+    [Parameter] public AlarmDays Days { get; set; }
+    [Parameter] public EventCallback<AlarmDays> DaysChanged { get; set; }
+    private Task ToggleAsync(AlarmDays day, ChangeEventArgs e) =>
+        DaysChanged.InvokeAsync(e.Value is true ? Days | day : Days & ~day);
+}

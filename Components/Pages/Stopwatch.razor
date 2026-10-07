@@ -1,13 +1,26 @@
 @page "/stopwatch"
 @inject StopwatchService Service
 <h1 class="mb-6 text-2xl font-semibold">Stopwatch</h1>
-<div class="mb-6 text-5xl font-mono tabular-nums">@TimeDisplay.Format(Service.Elapsed)</div>
+<div class="mb-6 text-5xl font-mono tabular-nums">@TimeDisplay.FormatPrecise(Service.Elapsed)</div>
 <div class="flex flex-wrap gap-2">
     <button class="rounded bg-blue-700 px-4 py-2 text-white disabled:opacity-50" disabled="@(Service.State != RunState.Stopped)" @onclick="Service.Start">Start</button>
     <button class="rounded border border-slate-300 px-4 py-2 disabled:opacity-50" disabled="@(Service.State is not (RunState.Running or RunState.Paused))" @onclick="TogglePause">@(Service.State == RunState.Paused ? "Resume" : "Pause")</button>
+    <button class="rounded border border-slate-300 px-4 py-2 disabled:opacity-50" disabled="@(Service.State != RunState.Running)" @onclick="Service.Capture">Capture time</button>
     <button class="rounded border border-slate-300 px-4 py-2" @onclick="Service.Reset">Reset</button>
 </div>
 <p role="status" class="mt-4">Status: @Service.State</p>
+<section class="mt-6" aria-label="Captured times">
+    <h2 class="mb-3 text-lg font-semibold">Captured times</h2>
+    @if (Service.Marks.Count == 0) { <p class="text-slate-600">No captures yet. Reset clears captured times.</p> }
+    <ol class="flex flex-col gap-2" aria-live="polite" aria-relevant="additions">
+        @foreach (var mark in Service.Marks)
+        {
+            <li @key="mark.Number" class="rounded border border-slate-200 bg-white p-3">
+                Capture @mark.Number — <span class="font-mono tabular-nums">@TimeDisplay.FormatPrecise(mark.Elapsed)</span>
+            </li>
+        }
+    </ol>
+</section>
 @code {
     [CascadingParameter] public long Revision { get; set; }
     private void TogglePause() { if (Service.State == RunState.Paused) Service.Resume(); else Service.Pause(); }

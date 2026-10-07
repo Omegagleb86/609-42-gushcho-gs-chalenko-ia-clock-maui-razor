@@ -75,6 +75,7 @@
 
     <ItemGroup>
         <None Remove="package.json;package-lock.json;tailwind.config.js" />
-        <Content Remove="package.json;package-lock.json;tailwind.config.js" />
+        <Content Remove="package.json;package-lock.json;tailwind.config.js;Clock.wav;Timer.wav" />
+        <None Remove="Clock.wav;Timer.wav" />
     </ItemGroup>
 </Project>
