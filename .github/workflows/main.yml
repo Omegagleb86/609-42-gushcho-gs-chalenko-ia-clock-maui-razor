@@ -25,7 +25,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore clock.csproj -p:TargetFramework=net10.0-windows10.0.19041.0 -r win-x64
 
-      - name: Publish Windows application
+       - name: Publish Windows application
         run: >
           dotnet publish clock.csproj
           -f net10.0-windows10.0.19041.0
@@ -35,6 +35,7 @@ jobs:
           -p:WindowsPackageType=None
           -p:WindowsAppSDKSelfContained=true
           -p:WindowsAppSDKBootstrapInitialize=true
+          -p:PublishReadyToRun=false
           -o ./publish
 
       - name: Upload artifact
