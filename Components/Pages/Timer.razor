@@ -7,7 +7,7 @@
         @foreach (var timer in Service.Items.OrderBy(item => item.State == RunState.Running ? 0 : item.State == RunState.Paused ? 1 : item.State == RunState.Finished ? 2 : 3))
         {
             <article @key="timer.Id" class="rounded-3xl border border-white/5 bg-panel p-5 sm:p-8" aria-label="@($"Таймер на {TimeDisplay.Format(timer.Duration)}")">
-                <div class="text-[clamp(2rem,7vw,4.5rem)] font-bold leading-none tracking-tight tabular-nums">@TimeDisplay.Format(timer.Remaining, true)</div>
+                <SevenSegmentDisplay Text="@TimeDisplay.Format(timer.Remaining, true)" />
                 <p class="mt-4 text-xs text-muted">Таймер на @TimeDisplay.Format(timer.Duration) · @StateLabels.Run(timer.State)</p>
                 <div class="mt-6 flex flex-wrap justify-center gap-2">
                     @if (timer.State is RunState.Stopped or RunState.Finished) { <button class="primary-button" @onclick="timer.Start">Начать</button> }

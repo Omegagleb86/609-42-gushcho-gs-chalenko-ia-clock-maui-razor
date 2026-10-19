@@ -3,7 +3,7 @@
 @{ var next = Service.NextAlarm; }
 <section class="mx-auto w-full max-w-xl text-center">
     <h1 class="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted">Ближайший будильник</h1>
-    <div class="text-[clamp(3rem,9vw,6.5rem)] font-bold leading-none tracking-tight tabular-nums">@(next?.Time.ToString("HH:mm") ?? "--:--")</div>
+    <SevenSegmentDisplay Text="@(next?.Time.ToString("HH:mm") ?? "--:--")" Class="segment-alarm" />
     <p class="mt-5 text-sm text-muted sm:text-lg">@(next is null ? "Нет активных будильников" : $"Через {TimeDisplay.FormatUntil(next.TimeUntil)}")</p>
     <button class="primary-button mt-8" aria-expanded="@(adding ? "true" : "false")" @onclick="() => adding = !adding">+ Добавить будильник</button>
     @if (adding)

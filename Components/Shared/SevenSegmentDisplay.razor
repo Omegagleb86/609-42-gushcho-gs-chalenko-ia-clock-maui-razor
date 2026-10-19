@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="@($"0 0 {Width} 180")" class="seven-segment-display @Class">
+    @{ var x = 0; }
+    @foreach (var character in Text)
+    {
+        if (character == ':')
+        {
+            <circle cx="@(x + 15)" cy="65" r="6" class="segment-on" />
+            <circle cx="@(x + 15)" cy="115" r="6" class="segment-on" />
+        }
+        else if (character == '.')
+        {
+            <circle cx="@(x + 15)" cy="162" r="6" class="segment-on" />
+        }
+        else
+        {
+            <SevenSegmentDigit Value="character" X="x" />
+        }
+        x += CharacterWidth(character);
+    }
+</svg>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+    [Parameter] public string? Class { get; set; }
+    private int Width => Math.Max(1, Text.Sum(CharacterWidth));
+    private static int CharacterWidth(char value) => value is ':' or '.' ? 30 : 108;
+}

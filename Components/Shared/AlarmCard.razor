@@ -1,6 +1,6 @@
 <article class="rounded-3xl border border-white/5 bg-panel p-5 sm:p-6">
     <button type="button" class="flex w-full items-center justify-between gap-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-violet-400" aria-expanded="@(editing ? "true" : "false")" aria-label="@($"Изменить будильник на {Alarm.Time:HH:mm}")" @onclick="Toggle">
-        <span class="text-4xl font-bold tabular-nums">@Alarm.Time.ToString("HH:mm")</span>
+        <SevenSegmentDisplay Text="@Alarm.Time.ToString("HH:mm")" Class="segment-card" />
         <span class="text-right text-xs text-muted">@StateLabels.Alarm(Alarm.State)<br /><span class="mt-1 inline-block">@(editing ? "Закрыть ↑" : "Изменить ↓")</span></span>
     </button>
     <div class="mt-4"><WeekdayPicker Days="Alarm.Days" ReadOnly="true" /></div>

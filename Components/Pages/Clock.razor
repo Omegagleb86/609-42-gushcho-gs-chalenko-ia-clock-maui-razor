@@ -1,7 +1,7 @@
 @inject ClockService Service
 <section class="text-center" aria-label="Часы">
     <h1 class="sr-only">Часы</h1>
-    <div class="text-[clamp(2.5rem,9vw,7.5rem)] font-extrabold leading-none tracking-tight tabular-nums" aria-label="Текущее время">@Service.Now.ToString("HH:mm:ss")</div>
+    <SevenSegmentDisplay Text="@Service.Now.ToString("HH:mm:ss")" />
     <p class="mt-6 text-sm text-muted sm:text-base">@Service.Now.ToString("d MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"))</p>
 </section>
 @code {

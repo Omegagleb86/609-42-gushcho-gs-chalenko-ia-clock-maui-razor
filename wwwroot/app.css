@@ -13,3 +13,11 @@ h1:focus { outline: none; }
 .blazor-error-boundary { padding: 1rem; background: #442536; color: #fff; }
 .blazor-error-boundary::after { content: 'Произошла ошибка. Перезапустите приложение.'; }
 .status-bar-safe-area { height: env(safe-area-inset-top, 0px); background: #1c1d25; }
+
+/* SVG geometry scales with the available width; no font is used for digits. */
+.seven-segment-display { display: block; width: 100%; height: auto; margin-inline: auto; color: #a78bfa; }
+.seven-segment-display .segment-on { fill: currentColor; }
+.seven-segment-display .segment-off { fill: #393642; }
+.segment-alarm { max-width: 26rem; }
+.segment-card { width: 10rem; max-width: 55%; margin-inline: 0; flex-shrink: 1; }
+.segment-mark { width: 15rem; max-width: 75%; margin-inline: 0; color: #c4b5fd; }
