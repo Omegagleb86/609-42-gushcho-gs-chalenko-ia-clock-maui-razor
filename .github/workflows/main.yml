@@ -33,8 +33,8 @@ jobs:
           -r win-x64
           --no-restore
           -p:WindowsPackageType=None
-          -p:WindowsAppSDKSelfContained=true
-          -p:WindowsAppSDKBootstrapInitialize=true
+          -p:WindowsAppSDKSelfContained=false
+
           -p:PublishReadyToRun=false
           -o ./publish
 
