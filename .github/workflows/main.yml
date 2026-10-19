@@ -23,9 +23,9 @@ jobs:
         run: dotnet workload install maui
 
       - name: Restore dependencies
-        run: dotnet restore clock.csproj -p:TargetFramework=net10.0-windows10.0.19041.0 -r win-x64
+        run: dotnet restore clock.csproj -p:TargetFramework=net10.0-windows10.0.19041.0 -r win-x64 -p:PublishReadyToRun=false
 
-       - name: Publish Windows application
+      - name: Publish Windows application
         run: >
           dotnet publish clock.csproj
           -f net10.0-windows10.0.19041.0
