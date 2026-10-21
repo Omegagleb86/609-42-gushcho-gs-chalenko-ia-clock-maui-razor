@@ -23,20 +23,16 @@ jobs:
         run: dotnet workload install maui
 
       - name: Restore dependencies
-        run: dotnet restore clock.csproj -p:TargetFramework=net10.0-windows10.0.19041.0 -r win-x64 -p:PublishReadyToRun=false
+        shell: pwsh
+        run: |
+          dotnet restore clock.csproj -p:TargetFramework=net10.0-windows10.0.19041.0 -p:RuntimeIdentifierOverride=win-x64 -p:PublishReadyToRun=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Publish Windows application
-        run: >
-          dotnet publish clock.csproj
-          -f net10.0-windows10.0.19041.0
-          -c Release
-          -r win-x64
-          --no-restore
-          -p:WindowsPackageType=None
-          -p:WindowsAppSDKSelfContained=false
-
-          -p:PublishReadyToRun=false
-          -o ./publish
+        shell: pwsh
+        run: |
+          dotnet publish clock.csproj -f net10.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win-x64 -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=false -p:PublishReadyToRun=false --no-restore -o ./publish
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
