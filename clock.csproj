@@ -78,4 +78,7 @@
         <Content Remove="package.json;package-lock.json;tailwind.config.js;Clock.wav;Timer.wav" />
         <None Remove="Clock.wav;Timer.wav" />
     </ItemGroup>
+<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">
+    <RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>
+</PropertyGroup>
 </Project>
